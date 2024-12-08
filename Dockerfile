@@ -18,4 +18,4 @@ ENV FLASK_APP=app.py
 ENV FLASK_ENV=development
 
 # Run the command to start the app
-CMD ["python", "app.py"]
+CMD ["python", "main.py"]

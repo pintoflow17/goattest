@@ -6,7 +6,7 @@ from bs4 import BeautifulSoup
 from flask_cors import CORS
 import flask
 from flask import Flask, request, jsonify
-from crawl4ai import AsyncWebCrawler, CacheMode
+from crawl4ai import AsyncWebCrawler
 import json
 
 app = Flask(__name__)

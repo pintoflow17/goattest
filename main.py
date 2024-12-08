@@ -6,12 +6,21 @@ from bs4 import BeautifulSoup
 from flask_cors import CORS
 import flask
 from flask import Flask, request, jsonify
+from crawl4ai import AsyncWebCrawler, CacheMode
 import json
 
 app = Flask(__name__)
 
 # Enable CORS for all routes
 CORS(app)
+
+
+async def llm_crawler():
+    async with AsyncWebCrawler(verbose=True) as crawler:
+        result = await crawler.arun(url="https://www.goat.com/web-api/v1/product_variants/buy_bar_data?productTemplateId=884794&countryCode=EU")
+        # Soone will be change to result.markdown
+        print(result.markdown_v2.raw_markdown)
+        return  result.markdown_v2.raw_markdown
 
 def product_info_url_goat(SKU):
     try:
@@ -29,6 +38,9 @@ def product_info_url_goat(SKU):
         return request_url
     except:
         return ("https://www.goat.com/")
+    
+
+
     
 
 def prod_description_goat(SKU):
@@ -238,7 +250,7 @@ def sneakit_info(SKU):
 # print(response)
 
 
-
+# https://www.goat.com/web-api/v1/product_variants/buy_bar_data?productTemplateId=884794&countryCode=EU
 
 @app.route('/v1/product/prices', methods=['GET'])
 def scrape_products_prices(): 
@@ -283,6 +295,27 @@ def scrape_products_description():
         }), 500
         
 
+@app.route('/v1/product/description1', methods=['GET'])
+def scrape_products_descriptionv2(): 
+    try:
+        # Combine parameters from JSON body and query parameters
+       #skuData= request.args.get('sku')
+      # if not skuData:
+      #     return jsonify({"error": "The sku parameter is required"}), 400
+       
+       result= llm_crawler()
+       
+    #    print(result)
+       
+       # Return the result as JSON
+       return jsonify(result) 
+
+    except Exception as e:
+        return jsonify({
+            'error': 'Something went wrong!',
+            'details': str(e)
+        }), 500
+        
 
 @app.route('/', methods=['GET'])
 def home_page(): 

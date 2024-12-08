@@ -301,40 +301,17 @@ def scrape_products_description():
 async def crawl_goat_endpoint():
     try:
         # Run the async function
-        result = await llm_crawler()
-        return jsonify({
-            "status": "success",
-            "data": result
-        }), 200
+        async with AsyncWebCrawler(verbose=True) as crawler:
+            result = await crawler.arun(url="https://www.goat.com/web-api/v1/product_variants/buy_bar_data?productTemplateId=884794&countryCode=EU")
+            return jsonify({
+                "status": "success",
+                "data": result.markdown_v2.raw_markdown
+            }), 200
     except Exception as e:
         return jsonify({
             "status": "error",
             "message": str(e)
         }), 500
-        
-async def llm_crawler():
-    async with AsyncWebCrawler(verbose=True) as crawler:
-        result = await crawler.arun(url="https://www.goat.com/web-api/v1/product_variants/buy_bar_data?productTemplateId=884794&countryCode=EU")
-        print(result.markdown_v2.raw_markdown)
-        return result.markdown_v2.raw_markdown
-
-# Since Flask's default server doesn't support async directly, 
-# we'll use an async wrapper
-def async_route(f):
-    def wrapper(*args, **kwargs):
-        return asyncio.run(f(*args, **kwargs))
-    return wrapper
-
-# Modify the route to use the async wrapper
-app.route('/crawl-goat', methods=['GET'])(async_route(crawl_goat_endpoint))
-@app.route('/', methods=['GET'])
-def home_page(): 
-    # Return the result as JSON
-    return jsonify({"message": "This is a Goat API"})
-   
-
-
-
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=False)

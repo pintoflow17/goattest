@@ -1,6 +1,7 @@
 import os
 import cloudscraper
 import json
+import asyncio
 import requests
 from bs4 import BeautifulSoup
 from flask_cors import CORS
@@ -15,12 +16,12 @@ app = Flask(__name__)
 CORS(app)
 
 
-async def llm_crawler():
-    async with AsyncWebCrawler(verbose=True) as crawler:
-        result = await crawler.arun(url="https://www.goat.com/web-api/v1/product_variants/buy_bar_data?productTemplateId=884794&countryCode=EU")
-        # Soone will be change to result.markdown
-        print(result.markdown_v2.raw_markdown)
-        return  result.markdown_v2.raw_markdown
+# async def llm_crawler():
+#     async with AsyncWebCrawler(verbose=True) as crawler:
+#         result = await crawler.arun(url="https://www.goat.com/web-api/v1/product_variants/buy_bar_data?productTemplateId=884794&countryCode=EU")
+#         # Soone will be change to result.markdown
+#         print(result.markdown_v2.raw_markdown)
+#         return  result.markdown_v2.raw_markdown
 
 def product_info_url_goat(SKU):
     try:
@@ -311,7 +312,21 @@ async def crawl_goat_endpoint():
             "message": str(e)
         }), 500
         
+async def llm_crawler():
+    async with AsyncWebCrawler(verbose=True) as crawler:
+        result = await crawler.arun(url="https://www.goat.com/web-api/v1/product_variants/buy_bar_data?productTemplateId=884794&countryCode=EU")
+        print(result.markdown_v2.raw_markdown)
+        return result.markdown_v2.raw_markdown
 
+# Since Flask's default server doesn't support async directly, 
+# we'll use an async wrapper
+def async_route(f):
+    def wrapper(*args, **kwargs):
+        return asyncio.run(f(*args, **kwargs))
+    return wrapper
+
+# Modify the route to use the async wrapper
+app.route('/crawl-goat', methods=['GET'])(async_route(crawl_goat_endpoint))
 @app.route('/', methods=['GET'])
 def home_page(): 
     # Return the result as JSON

@@ -283,6 +283,13 @@ def scrape_products_description():
         
 
 
+@app.route('/', methods=['GET'])
+def home_page(): 
+    # Return the result as JSON
+    return jsonify({"message": "This is a Goat API"})
+   
+
+
 
 
 if __name__ == '__main__':

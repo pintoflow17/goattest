@@ -9,6 +9,7 @@ import flask
 from flask import Flask, request, jsonify
 from crawl4ai import AsyncWebCrawler
 import json
+from playwright.sync_api import sync_playwright
 
 app = Flask(__name__)
 
@@ -22,6 +23,14 @@ CORS(app)
 #         # Soone will be change to result.markdown
 #         print(result.markdown_v2.raw_markdown)
 #         return  result.markdown_v2.raw_markdown
+
+
+
+# Add this before your crawler function
+def install_playwright_browsers():
+    sync_playwright().install()
+    
+    
 
 def product_info_url_goat(SKU):
     try:
@@ -314,4 +323,5 @@ async def crawl_goat_endpoint():
         }), 500
 
 if __name__ == '__main__':
+    install_playwright_browsers()
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=False)

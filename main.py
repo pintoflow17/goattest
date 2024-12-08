@@ -295,25 +295,20 @@ def scrape_products_description():
         }), 500
         
 
-@app.route('/v1/product/description1', methods=['GET'])
-def scrape_products_descriptionv2(): 
-    try:
-        # Combine parameters from JSON body and query parameters
-       #skuData= request.args.get('sku')
-      # if not skuData:
-      #     return jsonify({"error": "The sku parameter is required"}), 400
-       
-       result= llm_crawler()
-       
-    #    print(result)
-       
-       # Return the result as JSON
-       return jsonify(result) 
 
+@app.route('/crawl-goat', methods=['GET'])
+async def crawl_goat_endpoint():
+    try:
+        # Run the async function
+        result = await llm_crawler()
+        return jsonify({
+            "status": "success",
+            "data": result
+        }), 200
     except Exception as e:
         return jsonify({
-            'error': 'Something went wrong!',
-            'details': str(e)
+            "status": "error",
+            "message": str(e)
         }), 500
         
 

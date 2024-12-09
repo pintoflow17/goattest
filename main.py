@@ -10,6 +10,8 @@ from flask import Flask, request, jsonify
 from crawl4ai import AsyncWebCrawler
 import json
 from playwright.sync_api import sync_playwright
+import subprocess
+import sys
 
 app = Flask(__name__)
 
@@ -28,7 +30,14 @@ CORS(app)
 
 # Add this before your crawler function
 def install_playwright_browsers():
-    sync_playwright().install()
+    try:
+        # Use subprocess to run playwright install command
+        subprocess.check_call([sys.executable, '-m', 'playwright', 'install'])
+        print("Playwright browsers installed successfully")
+    except subprocess.CalledProcessError:
+        print("Failed to install Playwright browsers")
+    except Exception as e:
+        print(f"An error occurred while installing Playwright browsers: {e}")
     
     
 

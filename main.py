@@ -318,9 +318,18 @@ def scrape_products_description():
 @app.route('/crawl-goat', methods=['GET'])
 async def crawl_goat_endpoint():
     try:
+         # Extract the productTemplateId from query parameters
+        product_template_id = request.args.get('productTemplateId')
+        if not product_template_id:
+            return jsonify({
+                "status": "error",
+                "message": "Missing required parameter: productTemplateId"
+            }), 400
+            
         # Run the async function
         async with AsyncWebCrawler(verbose=True) as crawler:
-            result = await crawler.arun(url="https://www.goat.com/web-api/v1/product_variants/buy_bar_data?productTemplateId=884794&countryCode=EU")
+            url = f"https://www.goat.com/web-api/v1/product_variants/buy_bar_data?productTemplateId={product_template_id}&countryCode=EU"
+            result = await crawler.arun(url=url)  
             return jsonify({
                 "status": "success",
                 "data": result.markdown_v2.raw_markdown

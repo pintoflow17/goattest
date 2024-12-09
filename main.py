@@ -340,6 +340,34 @@ async def crawl_goat_endpoint():
             "message": str(e)
         }), 500
 
+
+@app.route('/scrape-url', methods=['GET'])
+async def crawl_goat_endpoint():
+    try:
+         # Extract the productTemplateId from query parameters
+        any_url = request.args.get('url')
+        if not any_url:
+            return jsonify({
+                "status": "error",
+                "message": "Missing required parameter: url"
+            }), 400
+            
+        # Run the async function
+        async with AsyncWebCrawler(verbose=True) as crawler:
+            url = any_url
+            result = await crawler.arun(url=url)  
+            return jsonify({
+                "status": "success",
+                "data": result.markdown_v2.raw_markdown
+            }), 200
+    except Exception as e:
+        return jsonify({
+            "status": "error",
+            "message": str(e)
+        }), 500
+
+
+
 if __name__ == '__main__':
     install_playwright_browsers()
     app.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)), debug=False)
